@@ -1,0 +1,61 @@
+# Example configuration for the Static Analysis Fixer agent.
+# Copy this file and customize for your project.
+
+project_name: my-project
+repo_path: "."
+branch_prefix: fix/static-analysis
+git_remote: origin
+
+runtime:
+  dry_run: false
+  max_fix_attempts: 1
+  max_retry_per_warning: 2
+  artifacts_dir: "./artifacts/static-analysis"
+  history_file: "./artifacts/static-analysis/history.json"
+  audit_log: "./artifacts/static-analysis/audit.jsonl"
+  push_after_commit: true
+  close_issue_after_push: true
+
+github:
+  enabled: true
+  repo_owner: your-org
+  repo_name: your-repo
+  labels: [static-analysis, auto-fix]
+
+junior_llm:
+  binary: codex          # or: aider, claude, cursor, etc.
+  model: ""              # model name (provider-specific)
+  approval_mode: full-auto
+  task_timeout_seconds: 1800
+
+# Configure your static analysis tool here.
+# Use {source_paths} as a placeholder — it will be replaced with the paths below.
+static_analysis:
+  # Examples:
+  #   cppcheck:  "cppcheck --enable=warning,style --xml {source_paths} 2>&1"
+  #   pylint:    "pylint --output-format=json {source_paths}"
+  #   eslint:    "eslint --format json {source_paths}"
+  command: "cppcheck --enable=warning,style,performance --xml {source_paths} 2>&1"
+  output_format: xml    # "xml" (cppcheck) or "json" (pylint, eslint)
+  source_paths:
+    - src/
+
+build:
+  command: make -j$(nproc)
+
+tests:
+  commands:
+    - bash tests/run_all_tests.sh
+
+selection_policy:
+  prefer_severities: [error, warning, performance, portability, style]
+  ignore_paths:
+    - vendor/*
+    - third_party/*
+
+escalation:
+  enabled: true
+  escalation_label: needs-human-review
+  rules:
+    - pattern: "*ISR*"
+      match_type: function_name

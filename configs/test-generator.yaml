@@ -1,0 +1,65 @@
+# Example configuration for the Test Generator agent.
+# Copy this file and customize for your project.
+
+project_name: my-project
+repo_path: "."
+branch_prefix: test/unit
+git_remote: origin
+
+runtime:
+  dry_run: false
+  max_fix_attempts: 3
+  max_retry_per_module: 3
+  artifacts_dir: "./artifacts/test-generator"
+  history_file: "./artifacts/test-generator/history.json"
+  audit_log: "./artifacts/test-generator/audit.jsonl"
+  push_after_commit: true
+  close_issue_after_push: true
+
+github:
+  enabled: true
+  repo_owner: your-org
+  repo_name: your-repo
+  labels: [unit-test, auto-generated]
+
+junior_llm:
+  binary: codex
+  model: ""
+  approval_mode: full-auto
+  task_timeout_seconds: 1800
+
+senior_llm:
+  enabled: true
+  binary: claude
+  max_attempts: 2
+  task_timeout_seconds: 2400
+  base_context_lines: 4000
+  expanded_context_lines: 8000
+  env:
+    ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+
+coverage:
+  compiler: gcc
+  compiler_flags: [-std=c99, -Wall, -Wextra]
+  coverage_flags: [--coverage]
+  source_paths:
+    - src/
+  test_framework_path: tests/vendor/unity
+  test_output_dir: tests/unit
+
+selection_policy:
+  prefer_tiers: [pure_logic, mock_able, hw_dependent]
+  min_coverage_increase: 1.0
+
+quality_gates:
+  run_regression: true
+  regression_script: tests/run_all_tests.sh
+  regression_timeout_seconds: 600
+  run_static_analysis: false
+
+escalation:
+  enabled: true
+  max_junior_attempts: 2
+  max_senior_attempts: 2
+  escalation_label: needs-human-review
+  agent_fixable_label: agent-fixable

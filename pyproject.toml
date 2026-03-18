@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentfix"
+version = "1.0.0"
+description = "Reusable LangGraph agents for automated code maintenance: static analysis fixing, test generation, and compliance checking."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+keywords = ["langgraph", "agents", "automation", "code-quality", "static-analysis", "testing"]
+dependencies = [
+  "langgraph>=0.2",
+  "pydantic>=2.7",
+  "PyYAML>=6.0",
+  "requests>=2.31",
+  "rich>=13.7",
+  "typer>=0.12",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+agentfix-static-analysis = "agentfix.static_analysis.cli:app"
+agentfix-test-generator = "agentfix.test_generator.cli:app"
+agentfix-compliance = "agentfix.compliance_checker.cli:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

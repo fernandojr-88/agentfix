@@ -1,0 +1,61 @@
+# Example configuration for the Compliance Checker agent.
+# Copy this file and customize for your project.
+
+project_name: my-project
+repo_path: "."
+branch_prefix: compliance
+git_remote: origin
+
+runtime:
+  dry_run: false
+  artifacts_dir: "./artifacts/compliance"
+  task_plan_file: "./artifacts/compliance/task_plan.yaml"
+  history_file: "./artifacts/compliance/history.json"
+  audit_log: "./artifacts/compliance/audit.jsonl"
+  push_after_commit: true
+  close_issue_after_push: true
+
+github:
+  enabled: true
+  repo_owner: your-org
+  repo_name: your-repo
+  labels: [compliance, auto-generated]
+
+junior_llm:
+  binary: codex
+  model: ""
+  approval_mode: full-auto
+  task_timeout_seconds: 1800
+
+senior_llm:
+  enabled: true
+  binary: claude
+  max_attempts: 2
+  task_timeout_seconds: 2400
+  env:
+    ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+
+compliance:
+  docs_root: "docs/requirements"
+  gap_analysis: "gap_analysis.md"
+  readiness_doc: "readiness.md"
+  skip_requirements: []
+  partial_requirements: []
+  critical_modules:
+    - SecurityModule
+    - CryptoHandler
+    - AuditLog
+
+quality_gates:
+  run_regression: true
+  regression_script: tests/run_all_tests.sh
+  run_static_analysis: false
+  static_analysis_command: ""
+  run_power10: false
+
+escalation:
+  enabled: true
+  max_junior_attempts: 2
+  max_senior_attempts: 2
+  escalation_label: needs-human-review
+  critical_module_label: compliance-critical
